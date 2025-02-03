@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            width: 360px;
+            background-color: #ffffff;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .form {
+            margin-bottom: 20px;
+        }
+
+        .form input {
+            width: calc(100% - 20px);
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .form button {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .form button:hover {
+            background-color: #218838;
+        }
+
+        .expenses {
+            margin-top: 20px;
+        }
+
+        .expense-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .expense-item button {
+            background-color: #dc3545;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 5px 10px;
+        }
+
+        .expense-item button:hover {
+            background-color: #c82333;
+        }
+
+        .summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+
+        .summary div {
+            text-align: center;
+            flex: 1;
+            font-size: 1em;
+        }
+
+        .summary div:not(:last-child) {
+            border-right: 1px solid #ccc;
+        }
+
+        .total {
+            text-align: center;
+            font-size: 1.2em;
+            margin-top: 10px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Expense Tracker</h1>
+
+        <div class="summary">
+            <div id="total-balance">Balance: $0</div>
+            <div id="total-income">Income: $0</div>
+            <div id="total-expenses">Expenses: $0</div>
+        </div>
+
+        <div class="form">
+            <input type="text" id="expense-name" placeholder="Expense Name" />
+            <input type="number" id="expense-amount" placeholder="Expense Amount" />
+            <button id="add-expense">Add Expense</button>
+            <input type="number" id="income-amount" placeholder="Income Amount" />
+            <button id="add-income">Add Income</button>
+        </div>
+
+        <div class="expenses" id="expense-list">
+            <!-- Expense items will be added here -->
+        </div>
+    </div>
+
+    <script>
+        const addExpenseButton = document.getElementById('add-expense');
+        const addIncomeButton = document.getElementById('add-income');
+        const expenseNameInput = document.getElementById('expense-name');
+        const expenseAmountInput = document.getElementById('expense-amount');
+        const incomeAmountInput = document.getElementById('income-amount');
+        const expenseList = document.getElementById('expense-list');
+        const totalBalanceElement = document.getElementById('total-balance');
+        const totalExpensesElement = document.getElementById('total-expenses');
+        const totalIncomeElement = document.getElementById('total-income');
+
+        let totalExpenses = 0;
+        let totalIncome = 0;
+
+        function updateSummary() {
+            const totalBalance = totalIncome - totalExpenses;
+            totalBalanceElement.textContent = `Balance: $${totalBalance.toFixed(2)}`;
+            totalIncomeElement.textContent = `Income: $${totalIncome.toFixed(2)}`;
+            totalExpensesElement.textContent = `Expenses: $${totalExpenses.toFixed(2)}`;
+        }
+
+        function deleteExpense(expenseElement, amount) {
+            expenseList.removeChild(expenseElement);
+            totalExpenses -= amount;
+            updateSummary();
+        }
+
+        addExpenseButton.addEventListener('click', () => {
+            const name = expenseNameInput.value.trim();
+            const amount = parseFloat(expenseAmountInput.value);
+
+            if (name === '' || isNaN(amount) || amount <= 0) {
+                alert('Please enter a valid name and amount.');
+                return;
+            }
+
+            const expenseElement = document.createElement('div');
+            expenseElement.classList.add('expense-item');
+            expenseElement.innerHTML = `
+                <span>${name}: $${amount.toFixed(2)}</span>
+                <button>Delete</button>
+            `;
+
+            const deleteButton = expenseElement.querySelector('button');
+            deleteButton.addEventListener('click', () => deleteExpense(expenseElement, amount));
+
+            expenseList.appendChild(expenseElement);
+
+            totalExpenses += amount;
+            updateSummary();
+
+            expenseNameInput.value = '';
+            expenseAmountInput.value = '';
+        });
+
+        addIncomeButton.addEventListener('click', () => {
+            const amount = parseFloat(incomeAmountInput.value);
+
+            if (isNaN(amount) || amount <= 0) {
+                alert('Please enter a valid income amount.');
+                return;
+            }
+
+            totalIncome += amount;
+            updateSummary();
+
+            incomeAmountInput.value = '';
+        });
+    </script>
+</body>
+</html>
